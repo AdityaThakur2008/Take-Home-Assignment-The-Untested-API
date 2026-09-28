@@ -62,4 +62,62 @@ describe('taskService Unit Tests', () => {
       expect(taskService.findById(task.id)).toBeUndefined();
     });
   });
+
+  describe('getByStatus', () => {
+    it('should filter by exact status match', () => {
+      taskService.create({ title: 'Task 1', status: 'todo' });
+      taskService.create({ title: 'Task 2', status: 'done' });
+
+      const todos = taskService.getByStatus('todo');
+      expect(todos.length).toBe(1);
+      expect(todos[0].title).toBe('Task 1');
+    });
+  });
+
+  describe('getPaginated', () => {
+    it('should return correct 0-indexed items on page 1', () => {
+      for (let i = 1; i <= 15; i++) {
+        taskService.create({ title: `Task ${i}` });
+      }
+
+      const page1 = taskService.getPaginated(1, 10);
+      expect(page1.length).toBe(10);
+      expect(page1[0].title).toBe('Task 1');
+      expect(page1[9].title).toBe('Task 10');
+
+      const page2 = taskService.getPaginated(2, 10);
+      expect(page2.length).toBe(5);
+      expect(page2[0].title).toBe('Task 11');
+    });
+  });
+
+  describe('update', () => {
+    it('should return null for invalid task id', () => {
+      expect(taskService.update('non-existent', { title: 'New' })).toBeNull();
+    });
+
+    it('should update task and disallow changing id', () => {
+      const task = taskService.create({ title: 'Original' });
+      const updated = taskService.update(task.id, { title: 'Updated', id: 'tampered-id' });
+
+      expect(updated.title).toBe('Updated');
+      expect(updated.id).toBe(task.id);
+    });
+  });
+
+  describe('completeTask', () => {
+    it('should return null if task does not exist', () => {
+      expect(taskService.completeTask('invalid')).toBeNull();
+    });
+
+    it('should retain initial priority when marking task as done', () => {
+      const task = taskService.create({ title: 'High priority', priority: 'high' });
+      const completed = taskService.completeTask(task.id);
+
+      expect(completed.status).toBe('done');
+      expect(completed.priority).toBe('high');
+      expect(completed.completedAt).not.toBeNull();
+    });
+  });
+  
 });

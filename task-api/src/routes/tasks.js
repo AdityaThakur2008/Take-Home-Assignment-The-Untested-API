@@ -11,6 +11,7 @@ router.get('/stats', (req, res) => {
 router.get('/', (req, res) => {
   const { status, page, limit } = req.query;
 
+  
   if (status) {
     const tasks = taskService.getByStatus(status);
     return res.json(tasks);

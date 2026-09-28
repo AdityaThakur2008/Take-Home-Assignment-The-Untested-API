@@ -15,13 +15,36 @@ describe('Tasks API Integration Tests', () => {
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body.length).toBe(1);
     });
+
+    it('should filter tasks by status', async () => {
+      taskService.create({ title: 'Task 1', status: 'todo' });
+      taskService.create({ title: 'Task 2', status: 'done' });
+
+      const res = await request(app).get('/tasks?status=todo');
+      expect(res.status).toBe(200);
+      expect(res.body.length).toBe(1);
+      expect(res.body[0].status).toBe('todo');
+    });
   });
+
+  it('should support pagination combined with status filtering', async () => {
+      for (let i = 1; i <= 6; i++) {
+        taskService.create({ title: `Todo ${i}`, status: 'todo' });
+      }
+      taskService.create({ title: 'Done 1', status: 'done' });
+
+      const res = await request(app).get('/tasks?status=todo&page=1&limit=3');
+      expect(res.status).toBe(200);
+      expect(res.body.length).toBe(3);
+      expect(res.body[0].title).toBe('Todo 1');
+      expect(res.body.every((t) => t.status === 'todo')).toBe(true);
+    });
 
   describe('GET /tasks/stats', () => {
     it('should return accurate status counts including overdue metrics', async () => {
  
-  const pastDueDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(); // 1 din pehle
-  const futureDueDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 1 din baad
+  const pastDueDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(); // 1 day ago
+  const futureDueDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 1 day in the future
 
 
   taskService.create({ title: 'Task 1', status: 'todo', dueDate: pastDueDate });
