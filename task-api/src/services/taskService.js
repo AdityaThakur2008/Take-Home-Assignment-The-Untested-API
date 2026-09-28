@@ -40,6 +40,7 @@ const create = ({ title, description = '', status = 'todo', priority = 'medium',
     status,
     priority,
     dueDate,
+    assignee: null,
     completedAt: null,
     createdAt: new Date().toISOString(),
   };
