@@ -119,5 +119,17 @@ describe('taskService Unit Tests', () => {
       expect(completed.completedAt).not.toBeNull();
     });
   });
-  
+
+  describe('assignTask', () => {
+    it('should return null if target task does not exist', () => {
+      expect(taskService.assignTask('invalid', 'Aditya')).toBeNull();
+    });
+
+    it('should assign user and trim whitespace', () => {
+      const task = taskService.create({ title: 'Unassigned task' });
+      const updated = taskService.assignTask(task.id, '  Aditya  ');
+      expect(updated.assignee).toBe('Aditya');
+    });
+  });
+
 });

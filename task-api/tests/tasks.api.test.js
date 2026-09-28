@@ -145,4 +145,34 @@ it('should reject requests when title is only whitespace (400 Bad Request)', asy
       expect(res.body).toHaveProperty('error');
     });
   });
+
+  describe('PATCH /tasks/:id/assign', () => {
+    it('should assign a user to the task', async () => {
+      const task = taskService.create({ title: 'Task to assign' });
+      const res = await request(app)
+        .patch(`/tasks/${task.id}/assign`)
+        .send({ assignee: 'Aditya' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.assignee).toBe('Aditya');
+    });
+
+    it('should reject missing or empty assignee with 400', async () => {
+      const task = taskService.create({ title: 'Task' });
+      const res = await request(app)
+        .patch(`/tasks/${task.id}/assign`)
+        .send({ assignee: '   ' });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty('error');
+    });
+
+    it('should return 404 when assigning non-existent task', async () => {
+      const res = await request(app)
+        .patch('/tasks/missing-id/assign')
+        .send({ assignee: 'Aditya' });
+
+      expect(res.status).toBe(404);
+    });
+  });
 });
