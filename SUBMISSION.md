@@ -48,3 +48,27 @@ All identified bugs above were remediated directly in `taskService.js` and `rout
 
 ---
 
+## Coverage
+
+![npm run coverage](docs/coverage.png)
+
+Test Suites: 2 passed · Tests: 31 passed  
+Statements 92.85% · Branches 82.55% · Functions 93.33% · Lines 92.14%
+
+`taskService` is fully covered. Remaining gaps are the process listen path in `app.js` and a few unused validator branches (invalid priority / dueDate on update).
+
+## What I'd test next
+- Invalid JSON / missing `Content-Type`
+- Completing an already-completed task
+- Overdue boundary when `dueDate` is exactly now
+- Pagination metadata (`total`, `page`) if a UI is added
+
+## What surprised me
+- README statuses (`pending | in-progress | completed`) do not match the code (`todo | in_progress | done`)
+- `GET /tasks` originally treated `status` and pagination as mutually exclusive
+- `completeTask` silently overwrote priority to `medium`
+
+## Questions before production
+- Should `assignee` be a free-form name or a user id?
+- Do we need persistence? The store resets on restart
+- Should completed tasks still be re-assignable?
